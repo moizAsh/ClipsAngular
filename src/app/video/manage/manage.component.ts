@@ -1,3 +1,4 @@
+import { ThisReceiver } from '@angular/compiler';
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import IClip from 'src/app/models/clip.model';
@@ -49,6 +50,15 @@ export class ManageComponent implements OnInit {
     this.activeClip = clip
     this.modal.toggleModal('editClip')
 
+  }
+
+  update($event:IClip){
+    this.clips.forEach((element,index)=>{
+      if(element.docID == $event.docID){
+        this.clips[index].title = $event.title
+      }
+
+    })
   }
 
 }
