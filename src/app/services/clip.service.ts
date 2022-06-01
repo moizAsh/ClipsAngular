@@ -5,12 +5,15 @@ import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { switchMap,map } from 'rxjs/operators';
 import { of, BehaviorSubject,combineLatest } from 'rxjs';
 import {AngularFireStorage} from '@angular/fire/compat/storage'
+
+
 @Injectable({
   providedIn: 'root'
 })
 export class ClipService {
   public clipsCollection: AngularFirestoreCollection<IClip>
-
+  pageClips:IClip[] = []
+  pendingReq = false
   constructor(
     private db: AngularFirestore,
     private auth: AngularFireAuth,
@@ -64,5 +67,26 @@ export class ClipService {
     await this.clipsCollection.doc(clip.docID).delete()
    }
 
+   async getClips() {
+     if (this.pendingReq) {
+      return
+     }
+     this.pendingReq = true
+    const query = this.clipsCollection.ref.orderBy('timestamp','desc').limit(6)
 
+    const {length} = this.pageClips
+
+    if(length) {
+      const lastDocID = this.pageClips[length-1].docID
+      const lastDoc = await this.clipsCollection.doc(lastDocID)
+      .get()
+      .toPromise()
+      query = query.startAfter(lastDoc)
+    }
+
+    const snapshot = await query.get()
+    
+    this.pendingReq = false
+
+   }
 }
