@@ -1,3 +1,4 @@
+import { ThisReceiver } from '@angular/compiler';
 import { trimTrailingNulls } from '@angular/compiler/src/render3/view/util';
 import { Injectable } from '@angular/core';
 import { createFFmpeg,fetchFile } from '@ffmpeg/ffmpeg';
@@ -5,6 +6,7 @@ import { createFFmpeg,fetchFile } from '@ffmpeg/ffmpeg';
   providedIn: 'root'
 })
 export class FfmpegService {
+  isRunning = false;
   isReady = false;
   public ffmpeg;
   constructor() {
@@ -20,6 +22,7 @@ export class FfmpegService {
   }
 
   async getScreenShots(file: File){
+    this.isRunning = true
     const data = await fetchFile(file)
     this.ffmpeg.FS('writeFile',file.name,data)
 
@@ -53,6 +56,8 @@ export class FfmpegService {
       const screenshotURL = URL.createObjectURL(screenShotBlob)
       screenShots.push(screenshotURL)
     })
+
+    this.isRunning = false;
 
     return screenShots
   }
