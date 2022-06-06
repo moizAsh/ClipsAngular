@@ -78,13 +78,19 @@ export class ClipService {
 
     if(length) {
       const lastDocID = this.pageClips[length-1].docID
-      const lastDoc = await this.clipsCollection.doc(lastDocID)
-      .get()
-      .toPromise()
-      query = query.startAfter(lastDoc)
+      const lastDoc = await this.clipsCollection.doc(lastDocID).get()
+      
+       query.startAfter(lastDoc)
     }
 
     const snapshot = await query.get()
+
+    snapshot.forEach(doc => {
+      this.pageClips.push({
+        docID: doc.id,
+        ...doc.data()
+      })
+    })
     
     this.pendingReq = false
 
